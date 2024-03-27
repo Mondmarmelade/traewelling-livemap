@@ -1,35 +1,40 @@
 import { useEffect, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  useMap,
-  Marker,
-  Popup,
-  Polyline,
-} from "react-leaflet";
+import { MapContainer, TileLayer } from "react-leaflet";
 import "./App.css";
+import RenderPaths from "./components/renderPaths";
 
 function App() {
   const [positions, setPositions] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+
   useEffect(() => {
     fetch("https://traewelling.de/api/v1/positions")
-      .then((response) => response.json())
+      .then((response) => response.json()) // Parse the JSON response
       .then((data) => {
-        console.log(data.data);
+        // console.log(data);
         setPositions(data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching positions:", error);
       });
 
-    // return () => {
-    //   second;
-    // };
+    fetch("https://traewelling.de/api/v1/statuses")
+      .then((response) => response.json())
+      .then((data) => {
+        // console.log(data);
+        setStatuses(data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching statuses:", error);
+      });
   }, []);
 
-  const reverseCoordinates = (coordinates) => {
-    return [coordinates[1], coordinates[0]];
-  };
+  // if (statuses.length === 0 && positions.length === 0) {
+  //   return <p>Loading...</p>;
+  // }
 
-  return (
-    <>
+  if (statuses.length !== 0 && positions.length !== 0) {
+    return (
       <MapContainer
         center={[51.1633908, 10.4477191]}
         zoom={7}
@@ -40,40 +45,17 @@ function App() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {positions?.map((item) => {
-          if (item.polyline != null) {
-            let polyline = [];
 
-            item.polyline.features.map((feature) => {
-              let coordinates = feature.geometry.coordinates;
-              const reversedCoordinates = [coordinates[1], coordinates[0]];
-              polyline.push(reversedCoordinates);
-            });
-
-            console.log(polyline);
-            return (
-              <>
-                <Polyline
-                  key={item.statusId}
-                  positions={[polyline]}
-                  pathOptions={{ color: "#ff5e4c" }}
-                >
-                  <Popup>{item.status.user.username}</Popup>
-                </Polyline>
-              </>
-            );
-          }
-        })}
-        {/* <Marker
-          position={[51.505, -0.09]}
-        >
-          <Popup>
-            A pretty CSS3 popup. <br /> Easily customizable.
-          </Popup>
-        </Marker> */}
+        {positions.map((position) => (
+          <RenderPaths
+            key={position.statusId}
+            position={position}
+            statuses={statuses}
+          />
+        ))}
       </MapContainer>
-    </>
-  );
+    );
+  }
 }
 
 export default App;
