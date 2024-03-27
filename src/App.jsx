@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import "./App.css";
 import RenderPaths from "./components/renderPaths";
+import { Sentry } from "react-activity";
+import "react-activity/dist/library.css";
 
 function App() {
   const [positions, setPositions] = useState([]);
@@ -29,9 +31,21 @@ function App() {
       });
   }, []);
 
-  // if (statuses.length === 0 && positions.length === 0) {
-  //   return <p>Loading...</p>;
-  // }
+  if (statuses.length === 0 && positions.length === 0) {
+    return (
+      <div
+        style={{
+          height: "100vh",
+          width: "100vw",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Sentry color="#ff5e4c" size={56} speed={0.6} animating={true} />{" "}
+      </div>
+    );
+  }
 
   if (statuses.length !== 0 && positions.length !== 0) {
     return (
