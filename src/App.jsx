@@ -10,7 +10,7 @@ export const Context = React.createContext();
 function App() {
   const [positions, setPositions] = useState([]);
   const [statuses, setStatuses] = useState([]);
-  const [selectedID, setSelectedID] = useState();
+  const [selectedID, setSelectedID] = useState(0);
 
   useEffect(() => {
     fetch("https://traewelling.de/api/v1/positions")
