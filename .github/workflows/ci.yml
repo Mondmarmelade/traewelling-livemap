@@ -6,55 +6,25 @@ on:
       - main
 
 jobs:
-  build:
-    name: Build 🔨
+  build_and_deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo 🛎️
         uses: actions/checkout@v3
 
       - name: Setup Node 📦
         uses: actions/setup-node@v3
+        with:
+          node-version: 14
 
       - name: Install dependencies 📥
-        uses: bahmutov/npm-install@v1
+        run: npm install
 
       - name: Build project 🔧
         run: npm run build
 
-      - name: Upload production-ready build files 🚀
-        uses: actions/upload-artifact@v3
-        with:
-          name: production-files
-          path: ./dist
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    steps:
-      - name: Checkout repo 🛎️
-        uses: actions/checkout@v4
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-      - name: Install dependencies 📥
-        run: npm ci
-      - name: Build project 🔧
-        run: npm run build
-      - name: Setup Pages 📄
-        uses: actions/configure-pages@v4
-      - name: Upload artifact 🚀
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload dist folder
-          path: "./dist"
       - name: Deploy to GitHub Pages 🚀
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: JamesIves/github-pages-deploy-action@4.1.5
+        with:
+          branch: gh-pages
+          folder: dist
