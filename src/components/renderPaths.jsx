@@ -42,7 +42,11 @@ function RenderPaths({ position, statuses }) {
             positions={polyline}
             pathOptions={{ color: "#ff5e4c", opacity: opacity }}
           >
-            <Popup>{status.username} Test</Popup>
+            <Popup>
+              <a href={"https://traewelling.de/@" + status.username}>
+                {status.username}
+              </a>
+            </Popup>
           </Polyline>
         );
       }
