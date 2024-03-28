@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import React, { useEffect, useState } from "react";
+import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import "./App.css";
 import RenderPaths from "./components/renderPaths";
 import { Sentry } from "react-activity";
 import "react-activity/dist/library.css";
 
+export const Context = React.createContext();
+
 function App() {
   const [positions, setPositions] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [selectedID, setSelectedID] = useState();
 
   useEffect(() => {
     fetch("https://traewelling.de/api/v1/positions")
@@ -49,25 +52,27 @@ function App() {
 
   if (statuses.length !== 0 && positions.length !== 0) {
     return (
-      <MapContainer
-        center={[51.1633908, 10.4477191]}
-        zoom={7}
-        scrollWheelZoom={true}
-        style={{ height: "100vh", width: "100vw" }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-
-        {positions.map((position) => (
-          <RenderPaths
-            key={position.statusId}
-            position={position}
-            statuses={statuses}
+      <Context.Provider value={[selectedID, setSelectedID]}>
+        <MapContainer
+          center={[51.1633908, 10.4477191]}
+          zoom={7}
+          scrollWheelZoom={true}
+          style={{ height: "100vh", width: "100vw" }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-        ))}
-      </MapContainer>
+
+          {positions.map((position) => (
+            <RenderPaths
+              key={position.statusId}
+              position={position}
+              statuses={statuses}
+            />
+          ))}
+        </MapContainer>
+      </Context.Provider>
     );
   }
 }
