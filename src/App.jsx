@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import "./App.css";
 import RenderPaths from "./components/renderPaths";
-import { Sentry } from "react-activity";
-import "react-activity/dist/library.css";
+import LoadingScreen from "./components/LoadingScreen";
 
 export const Context = React.createContext();
 
@@ -11,8 +10,12 @@ function App() {
   const [positions, setPositions] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [selectedID, setSelectedID] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   useEffect(() => {
+    setIsLoading(true);
+    setLoadingMessage("Positionen abfragen");
     fetch("https://traewelling.de/api/v1/positions")
       .then((response) => response.json()) // Parse the JSON response
       .then((data) => {
@@ -21,8 +24,13 @@ function App() {
       })
       .catch((error) => {
         console.error("Error fetching positions:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
 
+    setIsLoading(true);
+    setLoadingMessage("Status abfragen");
     fetch("https://traewelling.de/api/v1/statuses")
       .then((response) => response.json())
       .then((data) => {
@@ -31,26 +39,17 @@ function App() {
       })
       .catch((error) => {
         console.error("Error fetching statuses:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
 
-  if (statuses.length === 0 && positions.length === 0) {
-    return (
-      <div
-        style={{
-          height: "100vh",
-          width: "100vw",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Sentry color="#ff5e4c" size={56} speed={0.6} animating={true} />{" "}
-      </div>
-    );
+  if (isLoading) {
+    return <LoadingScreen LoadingMessage={loadingMessage} />;
   }
 
-  if (statuses.length !== 0 && positions.length !== 0) {
+  if (statuses.length !== 0 && positions.length !== 0 && !isLoading) {
     return (
       <Context.Provider value={[selectedID, setSelectedID]}>
         <MapContainer
