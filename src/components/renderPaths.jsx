@@ -1,57 +1,74 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Popup, Polyline, useMapEvents } from "react-leaflet";
 import { Context } from "../App";
+import "../style/Popup.css";
 
-function RenderPaths({ position, statuses }) {
+function RenderPaths({ status, polyline }) {
   const [selectedID, setSelectedID] = useContext(Context);
+  const [color, setColor] = useState("#ff5e4c");
 
-  for (const status of statuses) {
-    if (position.statusId === status.id) {
-      if (position.polyline != null) {
-        let polyline = [];
-        position.polyline.features.map((feature) => {
-          let coordinates = feature.geometry.coordinates;
-          const reversedCoordinates = [coordinates[1], coordinates[0]];
-          polyline.push(reversedCoordinates);
-        });
+  useMapEvents({
+    click(e) {
+      setSelectedID(0);
+    },
+  });
 
-        console.log(status);
+  let polishedPolyline = [];
+  polyline.geometry.coordinates.map((coordinates) => {
+    const reversedCoordinates = [coordinates[1], coordinates[0]];
+    polishedPolyline.push(reversedCoordinates);
+  });
 
-        useMapEvents({
-          click(e) {
-            setSelectedID(0);
-          },
-        });
-
-        let opacity = 1;
-        if (selectedID === status.id) {
-          opacity = 1;
-        } else if (selectedID !== 0 && selectedID !== status.id) {
-          opacity = 0.5;
-        }
-
-        return (
-          <Polyline
-            eventHandlers={{
-              click: (e) => {
-                setSelectedID(status.id);
-                console.log("Clicked: ", status.id);
-              },
-            }}
-            key={position.statusId}
-            positions={polyline}
-            pathOptions={{ color: "#ff5e4c", opacity: opacity }}
-          >
-            <Popup>
-              <a href={"https://traewelling.de/@" + status.username}>
-                {status.username}
-              </a>
-            </Popup>
-          </Polyline>
-        );
-      }
+  useEffect(() => {
+    if (selectedID !== 0 && selectedID !== status.id) {
+      setColor("#ff8d80");
+    } else {
+      setColor("#ff5e4c");
     }
-  }
+  }, [selectedID]);
+
+  return (
+    <Polyline
+      eventHandlers={{
+        click: (e) => {
+          setSelectedID(status.id);
+          console.log("Clicked: ", status);
+        },
+      }}
+      key={status.id}
+      positions={polishedPolyline}
+      pathOptions={{ color: color, opacity: 1 }} //#ff8d80
+    >
+      <Popup className="popup">
+        <div style={{ width: 200, height: 100 }}>
+          <div style={{ display: "flex" }}>
+            <div style={{ width: "75%" }}>
+              <p>Von: {status.train.origin.name}</p>
+              <p>Zu: {status.train.destination.name}</p>
+            </div>
+            <div
+              style={{
+                // width: "25%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                // backgroundColor: "red",
+              }}
+            >
+              <img
+                style={{ width: 50, height: 50, borderRadius: "100%" }}
+                src={status.profilePicture}
+                alt={`Profile picture of ${status.username}`}
+              />
+            </div>
+          </div>
+          <a href={"https://traewelling.de/@" + status.username}>
+            {status.username}
+          </a>
+        </div>
+      </Popup>
+    </Polyline>
+  );
 }
 
 export default RenderPaths;

@@ -9,47 +9,59 @@ export const Context = React.createContext();
 function App() {
   const [positions, setPositions] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [polylines, setPolylines] = useState([]);
   const [selectedID, setSelectedID] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState("");
 
   useEffect(() => {
     setIsLoading(true);
-    setLoadingMessage("Positionen abfragen");
-    fetch("https://traewelling.de/api/v1/positions")
-      .then((response) => response.json()) // Parse the JSON response
-      .then((data) => {
-        // console.log(data);
-        setPositions(data.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching positions:", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-
-    setIsLoading(true);
     setLoadingMessage("Status abfragen");
     fetch("https://traewelling.de/api/v1/statuses")
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error("Error fetching polyline data");
+        }
+      })
       .then((data) => {
-        // console.log(data);
         setStatuses(data.data);
       })
       .catch((error) => {
         console.error("Error fetching statuses:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (statuses.length !== 0) {
+      getPolylines();
+    }
+  }, [statuses]);
+
+  const getPolylines = () => {
+    setLoadingMessage("Routen abfragen");
+
+    let IDs = "";
+    statuses.forEach((status) => {
+      IDs += `${status.id},`;
+    });
+
+    fetch("https://traewelling.de/api/v1/polyline/" + IDs)
+      .then((response) => response.json())
+      .then((data) => {
+        setPolylines(data.data);
       })
       .finally(() => {
         setIsLoading(false);
       });
-  }, []);
+  };
 
   if (isLoading) {
     return <LoadingScreen LoadingMessage={loadingMessage} />;
   }
 
-  if (statuses.length !== 0 && positions.length !== 0 && !isLoading) {
+  if (!isLoading) {
     return (
       <Context.Provider value={[selectedID, setSelectedID]}>
         <MapContainer
@@ -63,13 +75,23 @@ function App() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {positions.map((position) => (
-            <RenderPaths
-              key={position.statusId}
-              position={position}
-              statuses={statuses}
-            />
-          ))}
+          {statuses.map((status) => {
+            const matchingPolyline = polylines.features.find(
+              (polyline) => polyline.properties.statusId === status.id
+            );
+
+            if (matchingPolyline === undefined) {
+              return;
+            } else {
+              return (
+                <RenderPaths
+                  key={status.id}
+                  status={status}
+                  polyline={matchingPolyline}
+                />
+              );
+            }
+          })}
         </MapContainer>
       </Context.Provider>
     );

@@ -1,0 +1,9 @@
+.popup .leaflet-popup-content-wrapper {
+  border-radius: 5px;
+  background-color: #0c0c0c;
+  color: #fff;
+
+  a {
+    color: #ff5e4c;
+  }
+}
