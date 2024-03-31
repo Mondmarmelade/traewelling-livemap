@@ -12,6 +12,7 @@ function LoadingScreen({ LoadingMessage }) {
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
+        backgroundColor: "#292929",
       }}
     >
       <Sentry color="#ff5e4c" size={56} speed={0.6} animating={true} />
