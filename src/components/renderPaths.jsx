@@ -10,12 +10,12 @@ function RenderPaths({ status, polyline }) {
   const [pointsShown, setPointsShown] = useState(false);
 
   const homeIcon = new Icon({
-    iconUrl: "src/assets/homeIcon.png",
+    iconUrl: "/traewelling-livemap/assets/homeIcon.png",
     iconSize: [20, 20],
     iconAnchor: [10, 10],
   });
   const finishIcon = new Icon({
-    iconUrl: "src/assets/flagIcon.png",
+    iconUrl: "/traewelling-livemap/assets/flagIcon.png",
     iconSize: [20, 20],
     iconAnchor: [10, 10],
   });
