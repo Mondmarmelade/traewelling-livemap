@@ -1,9 +1,21 @@
 .popup .leaflet-popup-content-wrapper {
-  border-radius: 5px;
-  background-color: #0c0c0c;
+  /* border-radius: 5px; */
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+
   color: #fff;
 
   a {
+    color: #fff;
+    text-decoration: none;
+  }
+
+  a:hover {
     color: #ff5e4c;
   }
+}
+
+.leaflet-popup-close-button {
+  visibility: hidden;
 }

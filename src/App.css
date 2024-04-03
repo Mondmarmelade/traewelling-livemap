@@ -1,6 +1,10 @@
 body {
   margin: 0;
-  font-family: "lato";
+  font-family: "Lato", sans-serif;
+}
+
+.leaflet-container {
+  font-family: "Lato", sans-serif;
 }
 
 svg {
