@@ -2,6 +2,20 @@ import React from "react";
 import { Popup } from "react-leaflet";
 
 function CustomPopup({ status }) {
+  let departure = status.train.origin.departure;
+  let departurePlanned = status.train.origin.departurePlanned;
+  let arrival = status.train.destination.arrival;
+  let arrivalPlanned = status.train.destination.arrivalPlanned;
+  let late = 0;
+
+  if (arrival != arrivalPlanned) {
+    let date2 = new Date(arrival);
+    let date1 = new Date(arrivalPlanned);
+
+    let diff = date2 - date1;
+    late = Math.floor(diff / 1000 / 60) % 60;
+  }
+
   return (
     <Popup className="popup">
       <div
@@ -83,25 +97,65 @@ function CustomPopup({ status }) {
               marginLeft: 7,
             }}
           >
-            <p style={{ fontSize: 13, margin: 0 }}>
-              {new Date(status.train.origin.arrival).toLocaleDateString(
-                "de-DE",
-                {
+            {/* origin */}
+            <div style={{ display: "flex" }}>
+              <p
+                style={{
+                  fontSize: 13,
+                  margin: 0,
+                  marginRight: 5,
+                  textDecoration:
+                    departure != departurePlanned && "line-through",
+                }}
+              >
+                {new Date(departurePlanned).toLocaleDateString("de-DE", {
                   hour: "2-digit",
                   minute: "2-digit",
-                }
-              )}
-            </p>
+                })}
+              </p>
 
-            <p style={{ fontSize: 13, margin: 0 }}>
-              {new Date(status.train.destination.departure).toLocaleDateString(
-                "de-DE",
-                {
+              {departure != departurePlanned && (
+                <p style={{ fontSize: 13, margin: 0, color: "#FF3A3A" }}>
+                  {new Date(departure).toLocaleDateString("de-DE", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              )}
+            </div>
+
+            {/* late */}
+            {late > 0 && (
+              <p style={{ fontSize: 13, margin: 0, color: "#FF3A3A" }}>
+                +{late} Minuten
+              </p>
+            )}
+
+            {/* destination */}
+            <div style={{ display: "flex" }}>
+              <p
+                style={{
+                  fontSize: 13,
+                  margin: 0,
+                  marginRight: 5,
+                  textDecoration: arrival != arrivalPlanned && "line-through",
+                }}
+              >
+                {new Date(arrivalPlanned).toLocaleDateString("de-DE", {
                   hour: "2-digit",
                   minute: "2-digit",
-                }
+                })}
+              </p>
+
+              {arrival != arrivalPlanned && (
+                <p style={{ fontSize: 13, margin: 0, color: "#FF3A3A" }}>
+                  {new Date(arrival).toLocaleDateString("de-DE", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
               )}
-            </p>
+            </div>
           </div>
         </div>
 
